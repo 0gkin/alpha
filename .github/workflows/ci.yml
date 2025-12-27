@@ -1,35 +1,35 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches: [ main ]
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  static-check:
+  static-site-check:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Show files
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List files
         run: |
-          pwd
+          echo "Repo contents:"
           ls -la
-          echo "---- tree ----"
-          find . -maxdepth 3 -type f | sed 's|^\./||'
-          - name: Sanity check
+
+      - name: Verify required files
         run: |
           set -e
-          echo "Listing html/js/css files (maxdepth 8)..."
-          find . -maxdepth 8 -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) | sed 's|^\./||'
+          test -f index.html
+          test -f app.js
+          test -f styles.css
+          echo "All required files exist ✅"
 
-          echo "Looking for an entry HTML file..."
-          ENTRY="$(find . -maxdepth 8 -type f -name '*.html' | head -n 1)"
-          if [ -z "$ENTRY" ]; then
-            echo "No .html file found. Please add one (e.g., index.html) or adjust paths."
-            exit 1
-          fi
-          echo "Found entry: $ENTRY ✅"
-
-
+      - name: Verify index.html references assets
+        run: |
+          set -e
+          grep -q 'src="app.js"' index.html
+          grep -q 'href="styles.css"' index.html
+          echo "index.html links are correct ✅"
