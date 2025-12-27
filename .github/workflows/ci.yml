@@ -18,11 +18,18 @@ jobs:
           ls -la
           echo "---- tree ----"
           find . -maxdepth 3 -type f | sed 's|^\./||'
-      - name: Sanity check
+          - name: Sanity check
         run: |
           set -e
-          echo "Looking for index.html ..."
-          find . -maxdepth 4 -name "index.html" -print
-          test "$(find . -maxdepth 4 -name 'index.html' | head -n 1)" != ""
-          echo "Found index.html ✅"
+          echo "Listing html/js/css files (maxdepth 8)..."
+          find . -maxdepth 8 -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) | sed 's|^\./||'
+
+          echo "Looking for an entry HTML file..."
+          ENTRY="$(find . -maxdepth 8 -type f -name '*.html' | head -n 1)"
+          if [ -z "$ENTRY" ]; then
+            echo "No .html file found. Please add one (e.g., index.html) or adjust paths."
+            exit 1
+          fi
+          echo "Found entry: $ENTRY ✅"
+
 
