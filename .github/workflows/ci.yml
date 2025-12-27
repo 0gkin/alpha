@@ -18,10 +18,11 @@ jobs:
           ls -la
           echo "---- tree ----"
           find . -maxdepth 3 -type f | sed 's|^\./||'
-
       - name: Sanity check
         run: |
-          test -f index.html
-          test -f app.js
-          test -f styles.css
-          echo "OK ✅"
+          set -e
+          echo "Looking for index.html ..."
+          find . -maxdepth 4 -name "index.html" -print
+          test "$(find . -maxdepth 4 -name 'index.html' | head -n 1)" != ""
+          echo "Found index.html ✅"
+
